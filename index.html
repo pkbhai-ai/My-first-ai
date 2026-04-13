@@ -1,1 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexira AI - Build Smarter with AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background: #0a0e27;
+            color: #e0e0e0;
+            overflow-x: hidden;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* BACKGROUND LAYER */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1428 100%);
+            pointer-events: none;
+        }
+
+        .gradient-shift {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent 0%, rgba(100, 150, 255, 0.05) 50%, transparent 100%);
+            will-change: transform;
+            backface-visibility: hidden;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.25;
+            pointer-events: none;
+            will-change: transform;
+            backface-visibility: hidden;
+        }
+
+        .cursor-glow {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 2;
+            mix-blend-mode: screen;
+            filter: blur(80px);
+            will-change: transform;
+            backface-visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* CONTENT LAYER */
+        .content {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card {
+            background: rgba(20, 25, 50, 0.4);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(100, 150, 255, 0.15);
+            border-radius: 32px;
+            padding: 80px 60px;
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 20;
+            will-change: transform;
+            backface-visibility: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(600px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(100, 150, 255, 0.08), transparent);
+            border-radius: 32px;
+            pointer-events: none;
+            opacity: 0;
+            will-change: opacity;
+        }
+
+        h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #6495ff 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            color: #a0a0c0;
+            margin-bottom: 50px;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #6495ff 0%, #7c3aed 100%);
+            border: none;
+            color: white;
+            padding: 18px 56px;
+            font-size: 1.05rem;
+            border-radius: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(100, 150, 255, 0.3);
+            will-change: transform, box-shadow;
+            backface-visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            will-change: left;
+            backface-visibility: hidden;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 50px rgba(100, 150, 255, 0.5);
+        }
+
+        .cta-button:active {
+            transform: translateY(-1px);
+        }
+
+        /* TOOLS SECTION */
+        .tools-section {
+            padding: 120px 20px 80px;
+            position: relative;
+            z-index: 15;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            text-align: center;
+            margin-bottom: 80px;
+            background: linear-gradient(135deg, #6495ff 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            opacity: 0;
+            transform: translateY(30px);
+            will-change: opacity, transform;
+            backface-visibility: hidden;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 40px;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .tool-card {
+            background: rgba(20, 25, 50, 0.4);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(100, 150, 255, 0.15);
+            border-radius: 24px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(40px);
+            will-change: transform, opacity;
+            backface-visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            background: linear-gradient(135deg, rgba(100, 150, 255, 0.1), transparent);
+            border-radius: 24px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(100, 150, 255, 0.3);
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-title {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: #6495ff;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .tool-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(30, 35, 70, 0.4);
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            border-radius: 10px;
+            color: #e0e0e0;
+            font-family: inherit;
+            margin-bottom: 14px;
+            resize: vertical;
+            min-height: 120px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            transition: all 0.2s ease;
+            will-change: border-color;
+            backface-visibility: hidden;
+        }
+
+        .tool-input:focus {
+            outline: none;
+            border-color: rgba(100, 150, 255, 0.5);
+            box-shadow: 0 0 16px rgba(100, 150, 255, 0.15);
+            background: rgba(30, 35, 70, 0.6);
+        }
+
+        .file-upload {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: block;
+            padding: 14px 16px;
+            background: rgba(30, 35, 70, 0.4);
+            border: 1.5px dashed rgba(100, 150, 255, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            color: #a0a0c0;
+            font-weight: 500;
+            will-change: border-color, background;
+            backface-visibility: hidden;
+        }
+
+        .file-label:hover {
+            border-color: rgba(100, 150, 255, 0.5);
+            background: rgba(30, 35, 70, 0.7);
+            color: #c0c0e0;
+        }
+
+        .file-name {
+            font-size: 0.8rem;
+            color: #6495ff;
+            margin-top: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #6495ff 0%, #7c3aed 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+            will-change: transform, box-shadow;
+            backface-visibility: hidden;
+            box-shadow: 0 0 20px rgba(100, 150, 255, 0.2);
+        }
+
+        .generate-btn:hover:not(:disabled) {
+            box-shadow: 0 0 30px rgba(100, 150, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .generate-btn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .loading-shimmer {
+            background: linear-gradient(90deg, rgba(100, 150, 255, 0.15), rgba(100, 150, 255, 0.25), rgba(100, 150, 255, 0.15));
+            background-size: 200% 100%;
+            animation: shimmer 1.8s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .output-box {
+            background: rgba(15, 20, 40, 0.5);
+            border: 1px solid rgba(100, 150, 255, 0.15);
+            border-radius: 10px;
+            padding: 18px;
+            margin-top: 14px;
+            min-height: 100px;
+            color: #c0c0e0;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            word-break: break-word;
+            white-space: pre-wrap;
+            will-change: opacity, max-height;
+            backface-visibility: hidden;
+        }
+
+        .output-box.visible {
+            opacity: 1;
+            max-height: 600px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .hero-card {
+                padding: 60px 40px;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .tool-card {
+                padding: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-card {
+                padding: 40px 24px;
+                border-radius: 24px;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .tools-section {
+                padding: 80px 16px 60px;
+            }
+
+            .tools-grid {
+                gap: 20px;
+                padding: 0 16px;
+            }
+
+            .tool-card {
+                padding: 24px;
+                border-radius: 20px;
+            }
+
+            .tool-title {
+                font-size: 1.3rem;
+            }
+
+            .generate-btn,
+            .tool-input,
+            .file-label {
+                border-radius: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .hero-card {
+                padding: 30px 20px;
+            }
+
+            .cta-button {
+                padding: 14px 40px;
+                font-size: 0.95rem;
+            }
+
+            .tool-card {
+                padding: 20px;
+            }
+
+            .tool-title {
+                font-size: 1.1rem;
+            }
+
+            .tool-input {
+                min-height: 100px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- BACKGROUND LAYER -->
+    <div class="background" id="background">
+        <div class="gradient-shift" id="gradientShift"></div>
+    </div>
+    <div class="cursor-glow" id="cursorGlow"></div>
+
+    <!-- CONTENT LAYER -->
+    <div class="content">
+        <!-- HERO SECTION -->
+        <section class="hero">
+            <div class="hero-card" id="heroCard">
+                <h1>Nexira</h1>
+                <p class="subtitle">Build smarter with AI</p>
+                <button class="cta-button" onclick="smoothScrollToTools()">Get Started</button>
+            </div>
+        </section>
+
+        <!-- TOOLS SECTION -->
+        <section class="tools-section" id="toolsSection">
+            <h2 class="section-title">AI Tools</h2>
+            <div class="tools-grid">
+                <!-- CAPTION GENERATOR -->
+                <div class="tool-card">
+                    <h3 class="tool-title">Caption Generator</h3>
+                    <div class="file-upload">
+                        <input type="file" id="captionFile" class="file-input" accept=".txt,.md">
+                        <label for="captionFile" class="file-label">📎 Upload File (optional)</label>
+                        <div class="file-name" id="captionFileName"></div>
+                    </div>
+                    <textarea class="tool-input" id="captionInput" placeholder="Enter text or upload a file..."></textarea>
+                    <button class="generate-btn" onclick="generateCaption(this)">Generate Caption</button>
+                    <div class="output-box" id="captionOutput"></div>
+                </div>
+
+                <!-- HASHTAG GENERATOR -->
+                <div class="tool-card">
+                    <h3 class="tool-title">Hashtag Generator</h3>
+                    <div class="file-upload">
+                        <input type="file" id="hashtagFile" class="file-input" accept=".txt,.md">
+                        <label for="hashtagFile" class="file-label">📎 Upload File (optional)</label>
+                        <div class="file-name" id="hashtagFileName"></div>
+                    </div>
+                    <textarea class="tool-input" id="hashtagInput" placeholder="Enter text or upload a file..."></textarea>
+                    <button class="generate-btn" onclick="generateHashtag(this)">Generate Hashtags</button>
+                    <div class="output-box" id="hashtagOutput"></div>
+                </div>
+
+                <!-- IDEA GENERATOR -->
+                <div class="tool-card">
+                    <h3 class="tool-title">Idea Generator</h3>
+                    <div class="file-upload">
+                        <input type="file" id="ideaFile" class="file-input" accept=".txt,.md">
+                        <label for="ideaFile" class="file-label">📎 Upload File (optional)</label>
+                        <div class="file-name" id="ideaFileName"></div>
+                    </div>
+                    <textarea class="tool-input" id="ideaInput" placeholder="Enter topic or upload a file..."></textarea>
+                    <button class="generate-btn" onclick="generateIdea(this)">Generate Ideas</button>
+                    <div class="output-box" id="ideaOutput"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // ============= PERFORMANCE MONITORING =============
+        let isTabActive = true;
+        let frameCount = 0;
+
+        document.addEventListener('visibilitychange', () => {
+            isTabActive = !document.hidden;
+        });
+
+        // ============= ANIMATION STATE =============
+        const animationState = {
+            mouseX: window.innerWidth / 2,
+            mouseY: window.innerHeight / 2,
+            glow: { x: window.innerWidth / 2 - 200, y: window.innerHeight / 2 - 200 },
+            orbs: [],
+            gradientRotation: 0,
+            isLowPerformance: false
+        };
+
+        // ============= DEVICE PERFORMANCE DETECTION =============
+        function detectPerformance() {
+            const isSmallScreen = window.innerWidth < 768;
+            const isVerySmallScreen = window.innerWidth < 480;
+            animationState.isLowPerformance = isVerySmallScreen;
+            return isSmallScreen ? 2 : isVerySmallScreen ? 1 : 3;
+        }
+
+        // ============= BACKGROUND ORBS INITIALIZATION =============
+        function initOrbs() {
+            const background = document.getElementById('background');
+            animationState.orbs = [];
+            background.querySelectorAll('.orb').forEach(el => el.remove());
+
+            const orbCount = detectPerformance();
+            const colors = [
+                'rgba(100, 150, 255, 0.4)',
+                'rgba(168, 85, 247, 0.4)',
+                'rgba(100, 200, 255, 0.4)'
+            ];
+
+            for (let i = 0; i < orbCount; i++) {
+                const orb = document.createElement('div');
+                orb.className = 'orb';
+                background.appendChild(orb);
+
+                const size = Math.random() * 250 + 200;
+                const startX = Math.random() * 100;
+                const startY = Math.random() * 100;
+
+                orb.style.width = size + 'px';
+                orb.style.height = size + 'px';
+                orb.style.background = colors[i % colors.length];
+                orb.style.left = startX + '%';
+                orb.style.top = startY + '%';
+
+                animationState.orbs.push({
+                    element: orb,
+                    x: startX,
+                    y: startY,
+                    vx: (Math.random() - 0.5) * 0.015,
+                    vy: (Math.random() - 0.5) * 0.015,
+                    size: size
+                });
+            }
+        }
+
+        // ============= LERP UTILITY =============
+        function lerp(a, b, t) {
+            return a + (b - a) * t;
+        }
+
+        // ============= BACKGROUND ANIMATION LOOP =============
+        function updateBackground() {
+            if (!isTabActive || animationState.isLowPerformance) return;
+
+            animationState.orbs.forEach(orb => {
+                orb.x += orb.vx;
+                orb.y += orb.vy;
+
+                if (orb.x < -5) orb.x = 105;
+                if (orb.x > 105) orb.x = -5;
+                if (orb.y < -5) orb.y = 105;
+                if (orb.y > 105) orb.y = -5;
+
+                orb.element.style.transform = `translate3d(${orb.x}%, ${orb.y}%, 0) translate3d(-50%, -50%, 0)`;
+            });
+
+            animationState.gradientRotation = (animationState.gradientRotation + 0.3) % 360;
+            const gradient = document.getElementById('gradientShift');
+            if (gradient) {
+                gradient.style.transform = `rotate(${animationState.gradientRotation}deg)`;
+            }
+        }
+
+        // ============= CURSOR GLOW ANIMATION LOOP =============
+        function updateCursorGlow() {
+            if (!isTabActive) return;
+
+            const glow = document.getElementById('cursorGlow');
+            animationState.glow.x = lerp(animationState.glow.x, animationState.mouseX - 200, 0.12);
+            animationState.glow.y = lerp(animationState.glow.y, animationState.mouseY - 200, 0.12);
+
+            glow.style.transform = `translate3d(${animationState.glow.x}px, ${animationState.glow.y}px, 0)`;
+        }
+
+        // ============= MOUSE TRACKING =============
+        function setupMouseTracking() {
+            document.addEventListener('mousemove', (e) => {
+                animationState.mouseX = e.clientX;
+                animationState.mouseY = e.clientY;
+                document.getElementById('cursorGlow').style.opacity = '1';
+            }, { passive: true });
+
+            document.addEventListener('mouseleave', () => {
+                document.getElementById('cursorGlow').style.opacity = '0';
+            }, { passive: true });
+
+            document.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                animationState.mouseX = touch.clientX;
+                animationState.mouseY = touch.clientY;
+            }, { passive: true });
+        }
+
+        // ============= MAIN ANIMATION LOOP =============
+        function animationLoop() {
+            if (isTabActive) {
+                updateBackground();
+                updateCursorGlow();
+            }
+            requestAnimationFrame(animationLoop);
+        }
+
+        // ============= INTERSECTION OBSERVER FOR SCROLL ANIMATIONS =============
+        function setupScrollAnimations() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+            document.querySelectorAll('.section-title, .tool-card').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        // ============= FILE UPLOAD HANDLERS =============
+        function setupFileUploads() {
+            const configs = [
+                { input: 'captionFile', textarea: 'captionInput', name: 'captionFileName' },
+                { input: 'hashtagFile', textarea: 'hashtagInput', name: 'hashtagFileName' },
+                { input: 'ideaFile', textarea: 'ideaInput', name: 'ideaFileName' }
+            ];
+
+            configs.forEach(({ input, textarea, name }) => {
+                document.getElementById(input).addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        document.getElementById(name).innerHTML = `✓ ${file.name}`;
+
+                        if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                document.getElementById(textarea).value = event.target.result;
+                            };
+                            reader.readAsText(file);
+                        }
+                    }
+                }, { passive: true });
+            });
+        }
+
+        // ============= GEMINI API INTEGRATION =============
+        const API_KEY = 'YOUR_API_KEY_HERE';
+
+        async function callGeminiAPI(prompt) {
+            try {
+                const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=' + API_KEY, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: prompt }]
+                        }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 1024
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('API Error');
+                const data = await response.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No output generated';
+            } catch (error) {
+                return `Error: ${error.message}. Please check your API key and try again.`;
+            }
+        }
+
+        // ============= TOOL GENERATION FUNCTIONS =============
+        async function generateCaption(button) {
+            const input = document.getElementById('captionInput').value.trim();
+            const output = document.getElementById('captionOutput');
+
+            if (!input) return alert('Please enter text or upload a file');
+
+            button.disabled = true;
+            button.classList.add('loading-shimmer');
+            output.classList.remove('visible');
+
+            const prompt = `Generate a compelling social media caption for: "${input}". Keep it under 200 characters and make it engaging. No hashtags.`;
+            const result = await callGeminiAPI(prompt);
+
+            button.disabled = false;
+            button.classList.remove('loading-shimmer');
+            output.textContent = result;
+            output.classList.add('visible');
+        }
+
+        async function generateHashtag(button) {
+            const input = document.getElementById('hashtagInput').value.trim();
+            const output = document.getElementById('hashtagOutput');
+
+            if (!input) return alert('Please enter text or upload a file');
+
+            button.disabled = true;
+            button.classList.add('loading-shimmer');
+            output.classList.remove('visible');
+
+            const prompt = `Generate 15 relevant and trending hashtags for: "${input}". Format as: #hashtag1 #hashtag2 etc. Only hashtags, no explanation.`;
+            const result = await callGeminiAPI(prompt);
+
+            button.disabled = false;
+            button.classList.remove('loading-shimmer');
+            output.textContent = result;
+            output.classList.add('visible');
+        }
+
+        async function generateIdea(button) {
+            const input = document.getElementById('ideaInput').value.trim();
+            const output = document.getElementById('ideaOutput');
+
+            if (!input) return alert('Please enter a topic or upload a file');
+
+            button.disabled = true;
+            button.classList.add('loading-shimmer');
+            output.classList.remove('visible');
+
+            const prompt = `Generate 5 creative, innovative, and actionable ideas based on: "${input}". Be specific, practical, and inspiring.`;
+            const result = await callGeminiAPI(prompt);
+
+            button.disabled = false;
+            button.classList.remove('loading-shimmer');
+            output.textContent = result;
+            output.classList.add('visible');
+        }
+
+        // ============= UTILITY FUNCTIONS =============
+        function smoothScrollToTools() {
+            document.getElementById('toolsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // ============= WINDOW RESIZE HANDLER =============
+        window.addEventListener('resize', () => {
+            initOrbs();
+        }, { passive: true });
+
+        // ============= INITIALIZATION =============
+        window.addEventListener('load', () => {
+            initOrbs();
+            setupMouseTracking();
+            setupFileUploads();
+            setupScrollAnimations();
+            animationLoop();
+        });
+    </script>
+</body>
+</html>
